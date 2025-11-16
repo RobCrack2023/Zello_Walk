@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Iconos PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 10px;
+        }
+        button {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+        .icons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .icon-item {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Iconos para Zello PWA</h1>
+        <p>Haz clic en "Generar Iconos" para crear todos los tamaños necesarios. Luego haz clic derecho en cada imagen y guárdala en la carpeta <code>public/icons/</code></p>
+
+        <button onclick="generateAllIcons()">Generar Iconos</button>
+
+        <div id="icons-container" class="icons-grid"></div>
+    </div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+
+            // Fondo gradiente
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#1e88e5');
+            gradient.addColorStop(1, '#1565c0');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Borde redondeado
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.2);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Icono de walkie-talkie simplificado
+            ctx.fillStyle = 'white';
+
+            // Cuerpo del walkie-talkie
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const width = size * 0.4;
+            const height = size * 0.6;
+
+            ctx.fillRect(centerX - width/2, centerY - height/2, width, height);
+
+            // Antena
+            ctx.fillRect(centerX - size * 0.03, centerY - height/2 - size * 0.15, size * 0.06, size * 0.15);
+
+            // Pantalla
+            ctx.fillStyle = '#1565c0';
+            ctx.fillRect(centerX - width/2 + size * 0.05, centerY - height/2 + size * 0.05, width - size * 0.1, size * 0.15);
+
+            // Botón PTT
+            ctx.fillStyle = '#43a047';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY + height * 0.15, size * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Agujeros del altavoz
+            ctx.fillStyle = '#1565c0';
+            const holeSize = size * 0.015;
+            const holeSpacing = size * 0.04;
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 4; col++) {
+                    ctx.beginPath();
+                    ctx.arc(
+                        centerX - holeSpacing * 1.5 + col * holeSpacing,
+                        centerY + height * 0.3 + row * holeSpacing * 0.8,
+                        holeSize,
+                        0,
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                }
+            }
+        }
+
+        function generateAllIcons() {
+            const container = document.getElementById('icons-container');
+            container.innerHTML = '';
+
+            sizes.forEach(size => {
+                const iconItem = document.createElement('div');
+                iconItem.className = 'icon-item';
+
+                const canvas = document.createElement('canvas');
+                drawIcon(canvas, size);
+
+                const label = document.createElement('p');
+                label.textContent = `icon-${size}.png`;
+
+                const downloadLink = document.createElement('a');
+                downloadLink.href = canvas.toDataURL('image/png');
+                downloadLink.download = `icon-${size}.png`;
+                downloadLink.appendChild(canvas);
+
+                iconItem.appendChild(downloadLink);
+                iconItem.appendChild(label);
+                container.appendChild(iconItem);
+            });
+        }
+
+        // Generar automáticamente al cargar
+        window.onload = generateAllIcons;
+    </script>
+</body>
+</html>

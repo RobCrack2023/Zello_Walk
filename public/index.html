@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e88e5">
+    <meta name="description" content="Walkie-Talkie PWA con chat multimedia">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>Zello PWA - Push to Talk</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Pantalla de Login -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="logo">
+                <i class="fas fa-walkie-talkie"></i>
+            </div>
+            <h1>Zello PWA</h1>
+            <p class="subtitle">Comunicación en tiempo real</p>
+
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username-input" placeholder="Ingresa tu nombre" maxlength="20">
+            </div>
+
+            <button id="login-btn" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i>
+                Ingresar
+            </button>
+        </div>
+    </div>
+
+    <!-- Pantalla de Selección de Canales -->
+    <div id="channels-screen" class="screen">
+        <div class="channels-screen-container">
+            <div class="channels-screen-header">
+                <div class="logo-small">
+                    <i class="fas fa-walkie-talkie"></i>
+                </div>
+                <h2>Selecciona un Canal</h2>
+                <p class="user-greeting">Hola, <span id="user-greeting-name"></span></p>
+            </div>
+
+            <!-- Buscador de canales -->
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="channel-search" placeholder="Buscar canales...">
+            </div>
+
+            <!-- Lista de canales populares/disponibles -->
+            <div class="channels-screen-list" id="channels-screen-list">
+                <!-- Los canales se agregarán aquí dinámicamente -->
+            </div>
+
+            <!-- Crear nuevo canal -->
+            <div class="create-channel-box">
+                <input type="text" id="new-channel-input-screen" placeholder="Nombre del nuevo canal" maxlength="30">
+                <button id="create-channel-btn-screen" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Crear Canal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla Principal -->
+    <div id="main-screen" class="screen">
+        <!-- Header Zello Style -->
+        <header class="zello-header">
+            <div class="zello-header-top">
+                <button id="back-to-channels-btn" class="zello-icon-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span class="recording-indicator"></span>
+                </button>
+                <div class="zello-header-actions">
+                    <button id="mic-settings-btn" class="zello-icon-btn">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="open-chat-btn" class="zello-icon-btn">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                    <button id="menu-btn" class="zello-icon-btn">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Channel Selector -->
+            <div class="zello-channel-selector">
+                <div class="channel-avatar">
+                    <div class="channel-waveform">
+                        <i class="fas fa-broadcast-tower"></i>
+                    </div>
+                    <span class="online-indicator"></span>
+                </div>
+                <div class="channel-details">
+                    <h2 id="current-channel-name">General</h2>
+                    <p class="channel-subtitle" id="channel-subtitle">Toca para hablar</p>
+                </div>
+                <div class="channel-menu">
+                    <button class="zello-icon-btn" id="channel-options-btn">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- PTT Button - ELEMENTO CENTRAL -->
+        <div class="ptt-container">
+            <button id="ptt-button" class="zello-ptt-button">
+                <div class="ptt-circle-outer"></div>
+                <div class="ptt-circle-inner">
+                    <i class="fas fa-microphone"></i>
+                </div>
+            </button>
+            <p class="ptt-hint">Mantén presionado para hablar</p>
+        </div>
+
+        <!-- Footer Zello Style -->
+        <footer class="zello-footer">
+            <button class="zello-footer-btn" id="volume-btn">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="zello-footer-btn" id="channels-footer-btn">
+                <i class="fas fa-layer-group"></i>
+            </button>
+            <button class="zello-footer-btn" id="signal-btn">
+                <i class="fas fa-signal"></i>
+            </button>
+            <button class="zello-footer-btn" id="options-btn">
+                <i class="fas fa-sliders-h"></i>
+            </button>
+        </footer>
+
+        <!-- Input de archivo oculto -->
+        <input type="file" id="file-input" accept="image/*,video/*,.gif" style="display: none;">
+    </div>
+
+    <!-- Chat Drawer (lateral) -->
+    <div id="chat-drawer" class="chat-drawer">
+        <div class="chat-drawer-header">
+            <h3>Chat</h3>
+            <button class="close-drawer" id="close-chat-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Tabs: Mensajes / Usuarios -->
+        <div class="chat-tabs">
+            <button class="chat-tab active" data-tab="messages">
+                <i class="fas fa-comments"></i> Mensajes
+            </button>
+            <button class="chat-tab" data-tab="users">
+                <i class="fas fa-users"></i> Usuarios <span class="user-count-badge" id="user-count">0</span>
+            </button>
+        </div>
+
+        <!-- Tab Content: Mensajes -->
+        <div class="chat-tab-content active" id="messages-tab">
+            <div class="messages-list" id="messages-list">
+                <!-- Los mensajes se agregarán aquí -->
+            </div>
+            <div class="chat-input-area">
+                <button id="attach-btn" class="icon-btn">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <input type="text" id="text-input" placeholder="Escribe un mensaje..." maxlength="500">
+                <button id="send-text-btn" class="icon-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Content: Usuarios -->
+        <div class="chat-tab-content" id="users-tab">
+            <div class="users-list" id="users-online"></div>
+        </div>
+    </div>
+
+    <!-- Modal de Canales -->
+    <div id="channels-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Canales</h2>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="channels-list" id="channels-list">
+                    <!-- Canales se listarán aquí -->
+                </div>
+                <div class="create-channel">
+                    <input type="text" id="new-channel-input" placeholder="Nombre del nuevo canal" maxlength="30">
+                    <button id="create-channel-btn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Crear Canal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Preview de Multimedia -->
+    <div id="media-preview-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Enviar archivo</h2>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="preview-container" class="preview-container"></div>
+                <input type="text" id="media-caption" placeholder="Agrega un comentario (opcional)" maxlength="200">
+                <button id="send-media-btn" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicador de usuario hablando -->
+    <div id="talking-indicator" class="talking-indicator">
+        <div class="talking-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="talking-info">
+            <span class="talking-username"></span>
+            <div class="talking-wave">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
